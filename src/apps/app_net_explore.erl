@@ -4,6 +4,8 @@
 -export([filter_offline_nodes/1]).
 -export([get_nodes_connectivity/0]).
 
+-export([generate_map/1, graph1/1]).
+
 %%% Tools for building a map of connected peers.
 %%% Requires graphviz for visualisation.
 
@@ -18,6 +20,10 @@ graph(Nodes) ->
     io:format("Generating connection map...~n"),
     Map = generate_map(Nodes),
     ar:d(Map),
+    graph1(Map).
+
+graph1(FullMap) ->
+    Map = simplify_map(FullMap),
     io:format("Generating dot file...~n"),
     {{Year, Month, Day}, {Hour, Minute, Second}} =
         calendar:now_to_datetime(erlang:timestamp()),
@@ -45,8 +51,16 @@ graph(Nodes) ->
     ok = filelib:ensure_dir(DotFile),
     ok = generate_dot_file(DotFile, Map),
     io:format("Generating PNG image...~n"),
-    os:cmd("dot -Tpng " ++ DotFile ++ " -o " ++ PngFile),
+    os:cmd("twopi -Tpng " ++ DotFile ++ " -o " ++ PngFile),
     io:format("Done! Image written to: '" ++ PngFile ++ "'~n").
+
+simplify_map(Map) ->
+  % io:format("Map hd: ~w", [hd(Map)]),
+  % lists:sublist(Map, 1, 4).
+  Mapper = fun ({Host, Peers}) ->
+      {Host, lists:sublist(Peers, 1, 4)}
+  end,
+  lists:map(Mapper, Map).
 
 
 %% @doc Return a list of nodes that are active and connected to the network.
