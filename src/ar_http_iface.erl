@@ -9,7 +9,7 @@
 -export([get_tx/2, get_tx_data/2, get_full_block/3, get_block_subfield/3, add_peer/1]).
 -export([get_encrypted_block/2, get_encrypted_full_block/2]).
 -export([get_info/1, get_info/2, get_peers/1, get_pending_txs/1, has_tx/2]).
--export([get_time/1]).
+-export([get_time/2]).
 -export([get_wallet_list/2, get_hash_list/1, get_hash_list/2]).
 -export([get_current_block/1]).
 -export([reregister/1, reregister/2]).
@@ -1053,8 +1053,8 @@ get_tx_data(Peer, Hash) ->
 	Body.
 
 %% @doc Retreive the current universal time as claimed by a foreign node.
-get_time(Peer) ->
-	case ar_httpc:request(<<"GET">>, Peer, "/time", []) of
+get_time(Peer, TimeoutMs) ->
+	case ar_httpc:request(<<"GET">>, Peer, "/time", [], TimeoutMs) of
 		{ok, {{<<"200">>, _}, _, Body, _, _}} ->
 			binary_to_integer(Body);
 		_ -> unknown
@@ -1632,7 +1632,7 @@ get_last_tx_single_test() ->
 
 %% @doc Check that we can qickly get the local time from the peer.
 get_time_test() ->
-	?assertEqual(os:system_time(second), get_time({127, 0, 0, 1, 1984})).
+	?assertEqual(os:system_time(second), get_time({127, 0, 0, 1, 1984}, 1000)).
 
 %% @doc Ensure that blocks can be received via a hash.
 get_block_by_hash_test() ->
