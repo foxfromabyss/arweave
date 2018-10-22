@@ -8,7 +8,7 @@
 %%% in the meta db.
 
 %% @doc Perform a HTTP call with the httpc library, store the time required.
-request(Peer) -> 
+request(Peer) ->
 	%ar:report([{ar_httpc_request,Peer}]),
 	Host="http://" ++ ar_util:format_peer(Peer),
 	{ok, Client} = fusco:start(Host, [{connect_timeout, ?CONNECT_TIMEOUT}]),
@@ -30,7 +30,7 @@ request(Method, Peer, Path, Body) ->
 				_ -> store_data_time(ar_util:parse_peer(IP), byte_size(Body), End-Start)
 			end;
 		_ -> ok
-		end,
+	end,
 	Result.
 request(Method, Peer, Path, Body, Timeout) ->
 	%ar:report([{ar_httpc_request,Peer},{method,Method}, {path,Path}]),
@@ -47,7 +47,7 @@ request(Method, Peer, Path, Body, Timeout) ->
 				_ -> store_data_time(ar_util:parse_peer(IP), byte_size(Body), End-Start)
 			end;
 		_ -> ok
-		end,
+	end,
 	Result.
 
 %% @doc Update the database with new timing data.
@@ -80,7 +80,7 @@ reset_peer(IP) ->
 update_timer(IP) ->
 	case ar_meta_db:get({peer, IP}) of
 		not_found -> #performance{};
-		P -> 
+		P ->
 			ar_meta_db:put({peer, IP},
 				P#performance {
 					transfers = P#performance.transfers,

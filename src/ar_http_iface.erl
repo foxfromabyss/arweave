@@ -131,7 +131,7 @@ handle('GET', [], _Req) ->
 handle('GET', [<<"info">>], _Req) ->
 	return_info();
 
-%% @doc Some load balancers use 'HEAD's rather than 'GET's to tell if a node 
+%% @doc Some load balancers use 'HEAD's rather than 'GET's to tell if a node
 %% is alive. Appease them.
 handle('HEAD', [], _Req) ->
 	{200, [], <<>>};
