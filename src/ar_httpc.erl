@@ -32,11 +32,11 @@ request(Method, Peer, Path, Body) ->
 		_ -> ok
 	end,
 	Result.
-request(Method, Peer, Path, Body, Timeout) ->
+request(Method, Peer, Path, Body, TimeoutMs) ->
 	%ar:report([{ar_httpc_request,Peer},{method,Method}, {path,Path}]),
 	Host="http://" ++ ar_util:format_peer(Peer),
-	{ok, Client} = fusco:start(Host, [{connect_timeout, ?CONNECT_TIMEOUT}]),
-	Result = fusco:request(Client, list_to_binary(Path), Method, ?DEFAULT_REQUEST_HEADERS, Body, 1, Timeout),
+	{ok, Client} = fusco:start(Host, [{connect_timeout, TimeoutMs}]),
+	Result = fusco:request(Client, list_to_binary(Path), Method, ?DEFAULT_REQUEST_HEADERS, Body, 1, TimeoutMs),
 	ok = fusco:disconnect(Client),
 	case Result of
 		{ok, {{_, _}, _, _, Start, End}} ->
