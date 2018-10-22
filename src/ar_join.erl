@@ -40,7 +40,7 @@ do_join(_Node, _RawPeers, NewB) when not ?IS_BLOCK(NewB) ->
 		]
 	);
 do_join(Node, RawPeers, NewB) ->
-	case verify_time_sync(RawPeers) of
+	case maybe_verify_time_sync(RawPeers) of
 		false ->
 			ar:report(
 				[
@@ -70,26 +70,27 @@ do_join(Node, RawPeers, NewB) ->
 			spawn(fun() -> fill_to_capacity(ar_manage_peers:get_more_peers(Peers), NewB#block.hash_list) end)
 	end.
 
-%% @doc Verify timestamps of peers.
-verify_time_sync(Peers) ->
-	% Ignore this check if time syncing is disable.
+%% @doc Verify timestamps of peers unless time syncing is disabled.
+maybe_verify_time_sync(Peers) ->
 	case ar_meta_db:get(time_syncing) of
 		false -> true;
-		_ ->
-			lists:all(
-				fun(Peer) ->
-					LocalT = os:system_time(second),
-					RemoteT = ar_http_iface:get_time(Peer),
-					case RemoteT of
-						unknown -> true;
-						_ ->
-							(LocalT >= (RemoteT - ?NODE_TIME_SYNC_TOLERANCE)) andalso
-							(LocalT =< (RemoteT + ?NODE_TIME_SYNC_TOLERANCE))
-					end
-				end,
-				[ P || P <- Peers, not is_pid(P) ]
-			)
+		_ -> verify_time_sync(Peers)
 	end.
+
+verify_time_sync(Peers) ->
+	lists:all(
+		fun(Peer) ->
+			LocalT = os:system_time(second),
+			RemoteT = ar_http_iface:get_time(Peer),
+			case RemoteT of
+				unknown -> true;
+				_ ->
+					(LocalT >= (RemoteT - ?NODE_TIME_SYNC_TOLERANCE)) andalso
+					(LocalT =< (RemoteT + ?NODE_TIME_SYNC_TOLERANCE))
+			end
+		end,
+		[ P || P <- Peers, not is_pid(P) ]
+	).
 
 %% @doc Return the current block from a list of peers.
 find_current_block([]) ->
