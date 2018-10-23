@@ -83,7 +83,7 @@ main("") ->
 		[
 			{"peer (ip:port)", "Join a network on a peer (or set of peers)."},
 			{"start_block", "Start the node from a given block."},
-			{"mine", "Automatically start mining once the netwok has been joined."},
+			{"mine", "Automatically start mining once the network has been joined."},
 			{"port", "The local port to use for mining. "
 						"This port must be accessible by remote peers."},
 			{"polling", "Poll peers for new blocks. Useful in environments where "
