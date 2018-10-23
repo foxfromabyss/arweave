@@ -4,6 +4,9 @@
 -export([filter_offline_nodes/1]).
 -export([get_nodes_connectivity/0]).
 -export([generate_gephi_csv/0]).
+-export([get_peers_clock_diff/0]).
+
+-export([get_peers_clock_diff/1]).
 
 %%% Tools for building a map of connected peers.
 %%% Requires graphviz for visualisation.
@@ -67,6 +70,9 @@ get_nodes_connectivity() ->
 %% weight is based on the Wildfire ranking.
 generate_gephi_csv() ->
     generate_gephi_csv(get_live_nodes()).
+
+get_peers_clock_diff() ->
+    get_peers_clock_diff(get_all_nodes()).
 
 %% @doc Return a map of every peers connections.
 %% Returns a list of tuples with arity 2. The first element is the local peer,
@@ -242,3 +248,21 @@ write_gephi_csv_rows([Edge | Edges], IoDevice) ->
                                        Weight]),
     ok = file:write(IoDevice, Row),
     write_gephi_csv_rows(Edges, IoDevice).
+
+get_peers_clock_diff(Peers) ->
+    [{Peer, get_peer_clock_diff(Peer)} || Peer <- Peers].
+
+get_peer_clock_diff(Peer) ->
+    Start = os:system_time(second),
+    PeerTime = ar_http_iface:get_time(Peer),
+    End = os:system_time(second),
+    peer_clock_diff(Start, PeerTime, End).
+
+peer_clock_diff(_, unknown, _) ->
+    unknown;
+peer_clock_diff(CheckStart, PeerTime, _) when PeerTime < CheckStart ->
+    PeerTime - CheckStart;
+peer_clock_diff(_, PeerTime, CheckEnd) when PeerTime > CheckEnd ->
+    PeerTime - CheckEnd;
+peer_clock_diff(_, _, _) ->
+    0.

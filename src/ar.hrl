@@ -106,7 +106,7 @@
 -define(LOCAL_NET_TIMEOUT, 30000).
 
 %% @doc Default timeout for initial request
--define(CONNECT_TIMEOUT, 3 * 1000).
+-define(CONNECT_TIMEOUT, 25 * 1000).
 
 %% @doc Default time to wait after a failed join to retry
 -define(REJOIN_TIMEOUT, 3000).
