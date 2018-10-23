@@ -254,7 +254,7 @@ get_peers_clock_diff(Peers) ->
 
 get_peer_clock_diff(Peer) ->
     Start = os:system_time(second),
-    PeerTime = ar_http_iface:get_time(Peer),
+    PeerTime = ar_http_iface:get_time(Peer, 3000),
     End = os:system_time(second),
     peer_clock_diff(Start, PeerTime, End).
 
